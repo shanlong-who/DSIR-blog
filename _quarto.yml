@@ -9,7 +9,7 @@ website:
   # RSS feed use absolute links — R-bloggers will reject relative ones.
   # If you publish to a repo named "blog":      https://shanlong-who.github.io/blog
   # If you publish to "shanlong-who.github.io": https://shanlong-who.github.io
-  site-url: https://shanlong-who.github.io/blog
+  site-url: https://shanlong-who.github.io/DSIR-blog
   navbar:
     left:
       - href: index.qmd
