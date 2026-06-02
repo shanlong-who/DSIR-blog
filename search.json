@@ -44,9 +44,9 @@
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About",
+    "title": "Shanlong Ding",
     "section": "",
-    "text": "About this blog"
+    "text": "I work on health information and data science at the WHO Regional Office for the Western Pacific. My focus is turning routine health data into decision-relevant intelligence — through indicator monitoring, reproducible analytical workflows in R, and data visualization.\nI’m the author of DSIR, an R package for global-health data work that provides unified access to the WHO Global Health Observatory and UN SDG indicator APIs, along with WHO-style ggplot2 and flextable themes for consistent reporting.\nI hold a PhD in microbiology and came to data science through public health. This blog is where I share notes on R, WHO and SDG data workflows, and the small tools I build along the way.\n\n\n\n\n\n\nThe views expressed on this blog are my own and do not necessarily reflect those of my employer."
   },
   {
     "objectID": "index.html",
