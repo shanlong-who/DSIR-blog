@@ -1,18 +1,29 @@
 ---
-title: "About"
-image: profile.jpg
+title: "Shanlong Ding"
 about:
-  template: jolla
+  template: trestles
+  image: maomi.jpg
+  image-shape: rounded
   links:
-    - icon: bluesky
-      text: Bluesky
-      href: https://bsky.app/
+    - icon: github
+      text: GitHub
+      href: https://github.com/shanlong-who
     - icon: linkedin
       text: LinkedIn
-      href: https://linkedin.com
-    - icon: github
-      text: Github
-      href: https://github.com
+      href: https://www.linkedin.com/in/shanlong-ding-158535186/
+    - text: "ORCID"
+      href: https://orcid.org/0000-0001-9048-6670
+    - icon: box-seam
+      text: DSIR on CRAN
+      href: https://cran.r-project.org/package=DSIR
 ---
 
-About this blog
+I work on health information and data science at the WHO Regional Office for the Western Pacific. My focus is turning routine health data into decision-relevant intelligence — through indicator monitoring, reproducible analytical workflows in R, and data visualization.
+
+I'm the author of [DSIR](https://shanlong-who.github.io/DSIR/), an R package for global-health data work that provides unified access to the WHO Global Health Observatory and UN SDG indicator APIs, along with WHO-style `ggplot2` and `flextable` themes for consistent reporting.
+
+I hold a PhD in microbiology and came to data science through public health. This blog is where I share notes on R, WHO and SDG data workflows, and the small tools I build along the way.
+
+::: {.callout-note appearance="simple"}
+The views expressed on this blog are my own and do not necessarily reflect those of my employer.
+:::
