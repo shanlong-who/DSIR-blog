@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>Shanlong Ding</title>
-<link>https://shanlong-who.github.io/blog/</link>
-<atom:link href="https://shanlong-who.github.io/blog/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://shanlong-who.github.io/DSIR-blog/</link>
+<atom:link href="https://shanlong-who.github.io/DSIR-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Notes on global-health data science, R, and WHO data workflows</description>
 <generator>quarto-1.9.37</generator>
 <lastBuildDate>Mon, 01 Jun 2026 16:00:00 GMT</lastBuildDate>
 <item>
   <title>One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR</title>
   <dc:creator>Shanlong Ding</dc:creator>
-  <link>https://shanlong-who.github.io/blog/posts/dsir-intro/</link>
+  <link>https://shanlong-who.github.io/DSIR-blog/posts/dsir-intro/</link>
   <description><![CDATA[ 
 
 
@@ -233,7 +233,7 @@ font-style: inherit;">NULL</span>)</span></code></pre></div></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://shanlong-who.github.io/blog/posts/dsir-intro/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://shanlong-who.github.io/DSIR-blog/posts/dsir-intro/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -263,14 +263,14 @@ font-style: inherit;">"DSIR"</span>)</span></code></pre></div></div>
   <category>WHO</category>
   <category>SDG</category>
   <category>ggplot2</category>
-  <guid>https://shanlong-who.github.io/blog/posts/dsir-intro/</guid>
+  <guid>https://shanlong-who.github.io/DSIR-blog/posts/dsir-intro/</guid>
   <pubDate>Mon, 01 Jun 2026 16:00:00 GMT</pubDate>
-  <media:content url="https://shanlong-who.github.io/blog/posts/dsir-intro/index.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://shanlong-who.github.io/DSIR-blog/posts/dsir-intro/index.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Post With Code</title>
   <dc:creator>Harlow Malloc</dc:creator>
-  <link>https://shanlong-who.github.io/blog/posts/post-with-code/</link>
+  <link>https://shanlong-who.github.io/DSIR-blog/posts/post-with-code/</link>
   <description><![CDATA[ 
 
 
@@ -297,14 +297,14 @@ font-style: inherit;">1</span></span></code></pre></div></div>
   <category>news</category>
   <category>code</category>
   <category>analysis</category>
-  <guid>https://shanlong-who.github.io/blog/posts/post-with-code/</guid>
+  <guid>https://shanlong-who.github.io/DSIR-blog/posts/post-with-code/</guid>
   <pubDate>Mon, 01 Jun 2026 16:00:00 GMT</pubDate>
-  <media:content url="https://shanlong-who.github.io/blog/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
+  <media:content url="https://shanlong-who.github.io/DSIR-blog/posts/post-with-code/image.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>Welcome To My Blog</title>
   <dc:creator>Tristan O&#39;Malley</dc:creator>
-  <link>https://shanlong-who.github.io/blog/posts/welcome/</link>
+  <link>https://shanlong-who.github.io/DSIR-blog/posts/welcome/</link>
   <description><![CDATA[ 
 
 
@@ -312,14 +312,14 @@ font-style: inherit;">1</span></span></code></pre></div></div>
 
 
 <p>This is the first post in a Quarto blog. Welcome!</p>
-<p><img src="https://shanlong-who.github.io/blog/posts/welcome/thumbnail.jpg" class="img-fluid"></p>
+<p><img src="https://shanlong-who.github.io/DSIR-blog/posts/welcome/thumbnail.jpg" class="img-fluid"></p>
 <p>Since this post doesn’t specify an explicit <code>image</code>, the first image in the post will be used in the listing page of posts.</p>
 
 
 
  ]]></description>
   <category>news</category>
-  <guid>https://shanlong-who.github.io/blog/posts/welcome/</guid>
+  <guid>https://shanlong-who.github.io/DSIR-blog/posts/welcome/</guid>
   <pubDate>Fri, 29 May 2026 16:00:00 GMT</pubDate>
 </item>
 </channel>
