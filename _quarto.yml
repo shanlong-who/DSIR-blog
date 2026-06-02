@@ -1,0 +1,36 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Shanlong Ding"
+  description: "Notes on global-health data science, R, and WHO data workflows"
+  # IMPORTANT: set this to your real published URL. It is what makes the
+  # RSS feed use absolute links — R-bloggers will reject relative ones.
+  # If you publish to a repo named "blog":      https://shanlong-who.github.io/blog
+  # If you publish to "shanlong-who.github.io": https://shanlong-who.github.io
+  site-url: https://shanlong-who.github.io/blog
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+    right:
+      - icon: github
+        href: https://github.com/shanlong-who
+        aria-label: GitHub
+      - icon: rss
+        href: index.xml
+        aria-label: RSS feed
+  page-footer:
+    center: "© 2026 Shanlong Ding"
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+execute:
+  freeze: auto

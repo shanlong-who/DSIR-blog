@@ -1,0 +1,19 @@
+---
+title: "Shanlong Ding"
+subtitle: "Global-health data science · R · WHO data workflows"
+listing:
+  contents: posts          # lists every post in the posts/ folder
+  sort: "date desc"
+  type: default
+  categories: true         # shows a category sidebar (R, SDG, WHO, …)
+  sort-ui: false
+  filter-ui: false
+  feed:
+    type: full             # full-content RSS — required by R-bloggers
+page-layout: full
+title-block-banner: true
+---
+
+Welcome. This is where I write about working with global-health data in R —
+WHO and UN SDG indicator APIs, reproducible analytical workflows, and the
+small tools I build along the way.

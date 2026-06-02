@@ -1,0 +1,72 @@
+[
+  {
+    "objectID": "posts/welcome/index.html",
+    "href": "posts/welcome/index.html",
+    "title": "Welcome To My Blog",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html",
+    "href": "posts/dsir-intro/index.html",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "",
+    "text": "If you have ever pulled indicator data from both the WHO Global Health Observatory (GHO) and the UN SDG database in the same project, you know the small frictions add up. The two APIs speak different dialects: GHO keys countries by ISO3 codes, the SDG API by UN M49 numeric codes. Their responses come back with different column names and different shapes. So before you can do any actual analysis, you end up writing — and rewriting — the same glue code to align them.\nDSIR (“Data Science Infrastructure for Global Health”) is a small R package I wrote to take that friction away. It bundles country metadata, lightweight clients for the GHO and SDG APIs that return a single shared schema, and a set of WHO-style ggplot2 and flextable themes so the output already looks like something you can drop into a report.\nIt is on CRAN:"
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html#country-metadata-you-dont-have-to-maintain",
+    "href": "posts/dsir-intro/index.html#country-metadata-you-dont-have-to-maintain",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "Country metadata you don’t have to maintain",
+    "text": "Country metadata you don’t have to maintain\nA surprising amount of global-health code starts by hand-maintaining a list of countries, regions, and ISO codes. DSIR ships that as data. who_countries is a tibble of all 194 WHO Member States, with ISO3 / ISO2 / UN M49 codes, official and short names, WHO region, and a flag for Pacific Island Countries:\n\nlibrary(DSIR)\nlibrary(dplyr)\n\nwho_countries |&gt;\n  filter(who_region == \"WPR\") |&gt;\n  select(iso3, name_short, is_pic)\n\n# A tibble: 28 × 3\n   iso3  name_short        is_pic\n   &lt;chr&gt; &lt;chr&gt;             &lt;lgl&gt; \n 1 AUS   Australia         FALSE \n 2 BRN   Brunei Darussalam FALSE \n 3 KHM   Cambodia          FALSE \n 4 CHN   China             FALSE \n 5 COK   Cook Islands      TRUE  \n 6 FJI   Fiji              TRUE  \n 7 IDN   Indonesia         FALSE \n 8 JPN   Japan             FALSE \n 9 KIR   Kiribati          TRUE  \n10 LAO   Lao PDR           FALSE \n# ℹ 18 more rows\n\n\nThere are also ready-made ISO3 vectors for each region — wpro_cty, afro_cty, euro_cty, and so on — that you can pass straight into the data functions. No more pasting country lists between scripts."
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html#a-consistent-search-fetch-clean-rhythm",
+    "href": "posts/dsir-intro/index.html#a-consistent-search-fetch-clean-rhythm",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "A consistent “search → fetch → clean” rhythm",
+    "text": "A consistent “search → fetch → clean” rhythm\nBoth API clients follow the same three-step rhythm, so once you’ve learned one you’ve learned both.\nFor GHO, you can search for an indicator, check coverage before committing to a download, then fetch and tidy:\n\n# Search indicators by keyword\ngho_indicators(\"mortality\")\n\n# Fetch premature NCD mortality for the Western Pacific, then tidy\nraw &lt;- gho_data(\"NCDMORT3070\", spatial_type = \"country\", area = wpro_cty)\ngho_clean(raw)\n\nThe SDG client works exactly the same way — and crucially, its area argument also accepts ISO3 codes, converting to M49 internally, so the same regional vectors just work:\n\n# 3.4.1 = NCD mortality; pass ISO3 codes directly\nraw &lt;- sdg_data(\"3.4.1\", area = wpro_cty)\nsdg_clean(raw)"
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html#the-payoff-one-schema-so-you-can-just-stack-them",
+    "href": "posts/dsir-intro/index.html#the-payoff-one-schema-so-you-can-just-stack-them",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "The payoff: one schema, so you can just stack them",
+    "text": "The payoff: one schema, so you can just stack them\nHere is the part that saves the most time. gho_clean() and sdg_clean() both return the same 15-column schema (source, id, indicator, location, iso3, year, value, value_num, …). Because the shape is identical, GHO and SDG output combine directly — no manual renaming, no reconciling code systems:\n\ngho &lt;- gho_data(\"NCDMORT3070\", area = wpro_cty) |&gt; gho_clean()\nsdg &lt;- sdg_data(\"3.4.1\",        area = wpro_cty) |&gt; sdg_clean()\n\nbind_indicators(gho, sdg)   # keep track of origin via the `source` column\n\nThat source column means you never lose track of where a row came from, even after you’ve stacked half a dozen indicators from both APIs."
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html#charts-and-tables-that-already-look-like-who",
+    "href": "posts/dsir-intro/index.html#charts-and-tables-that-already-look-like-who",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "Charts and tables that already look like WHO",
+    "text": "Charts and tables that already look like WHO\nThe other recurring cost in this kind of work is making every chart and table look consistent across a report. DSIR includes publication-ready themes so you don’t restyle from scratch each time. Here theme_dsi() and scale_y_dsi_col() (which removes the gap between bars and the axis) do the work:\n\nlibrary(ggplot2)\n\nwho_countries |&gt;\n  count(who_region) |&gt;\n  ggplot(aes(reorder(who_region, n), n)) +\n  geom_col(fill = \"#0093D5\") +\n  coord_flip() +\n  scale_y_dsi_col() +\n  theme_dsi() +\n  labs(title = \"WHO Member States by region\", x = NULL, y = NULL)\n\n\n\n\n\n\n\n\nFor multi-panel layouts there’s theme_dsi_facet(), and for tables dsi_flextable_defaults() sets booktabs styling, bold headers and sensible padding in one line. The point is that a chart pulled straight from who_countries or a cleaned indicator already carries a consistent WHO look, without per-plot fiddling."
+  },
+  {
+    "objectID": "posts/dsir-intro/index.html#try-it",
+    "href": "posts/dsir-intro/index.html#try-it",
+    "title": "One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR",
+    "section": "Try it",
+    "text": "Try it\nDSIR is on CRAN and the source is on GitHub:\ninstall.packages(\"DSIR\")\n\nDocumentation and a fuller walkthrough: https://shanlong-who.github.io/DSIR/\nSource, issues, and feature requests: https://github.com/shanlong-who/DSIR/\n\nIt’s early days and the package is small by design — it does the unglamorous data-plumbing so the analysis can start sooner. If you work with WHO or SDG data in R and find it useful, I’d love to hear what’s missing; issues and suggestions are very welcome. And if it saves you some glue code, a GitHub star helps other people working on global health find it too."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this blog"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Shanlong Ding",
+    "section": "",
+    "text": "Welcome. This is where I write about working with global-health data in R — WHO and UN SDG indicator APIs, reproducible analytical workflows, and the small tools I build along the way.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOne tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR\n\n\n\nR\n\nglobal health\n\nWHO\n\nSDG\n\nggplot2\n\n\n\nDSIR bundles WHO Member State metadata, lightweight clients for the GHO and UN SDG indicator APIs, and reusable WHO-style ggplot2 and flextable themes — so global-health data work in R takes less glue code and produces consistent charts and tables.\n\n\n\n\n\nJun 2, 2026\n\n\nShanlong Ding\n\n\n\n\n\n\n\n\n\n\n\n\nPost With Code\n\n\n\nnews\n\ncode\n\nanalysis\n\n\n\n\n\n\n\n\n\nJun 2, 2026\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nMay 30, 2026\n\n\nTristan O’Malley\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/post-with-code/index.html",
+    "href": "posts/post-with-code/index.html",
+    "title": "Post With Code",
+    "section": "",
+    "text": "This is a post with executable code.\n\n1 + 1\n\n[1] 2"
+  }
+]
