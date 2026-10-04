@@ -9,8 +9,290 @@
 <link>https://shanlong-who.github.io/DSIR-blog/</link>
 <atom:link href="https://shanlong-who.github.io/DSIR-blog/index.xml" rel="self" type="application/rss+xml"/>
 <description>Notes on global-health data science, R, and WHO data workflows</description>
-<generator>quarto-1.9.37</generator>
-<lastBuildDate>Mon, 01 Jun 2026 16:00:00 GMT</lastBuildDate>
+<generator>quarto-1.9.38</generator>
+<lastBuildDate>Sat, 03 Oct 2026 16:00:00 GMT</lastBuildDate>
+<item>
+  <title>DSIR 0.10.0: keep the detail behind health indicators</title>
+  <dc:creator>Shanlong Ding</dc:creator>
+  <link>https://shanlong-who.github.io/DSIR-blog/posts/dsir-0-10-0/</link>
+  <description><![CDATA[ 
+
+
+
+
+
+<p>The <a href="../../posts/dsir-intro/index.html">first DSIR post</a> introduced a shared format for WHO GHO and UN SDG data. <a href="https://github.com/shanlong-who/DSIR/blob/main/NEWS.md">DSIR 0.10.0</a> adds ways to inspect and keep the detail behind each observation: population breakdowns, units, sources, and notes. Both cleaners still return the same 15 columns by default.</p>
+<p>These examples require <strong>DSIR 0.10.0 or later</strong> and <code>dplyr</code>. See the <a href="https://github.com/shanlong-who/DSIR#installation">public repository</a> for installation instructions. The first two examples call the live UN SDG API; the displayed results were retrieved on 4 October 2026.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressPackageStartupMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(DSIR))</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressPackageStartupMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(dplyr))</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stopifnot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">packageVersion</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DSIR"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0.10.0"</span>)</span></code></pre></div></div>
+</div>
+<section id="look-up-official-dimension-codes" class="level2">
+<h2 class="anchored" data-anchor-id="look-up-official-dimension-codes">1. Look up official dimension codes</h2>
+<p><a href="https://github.com/shanlong-who/DSIR/blob/main/man/sdg_dimensions.Rd"><code>sdg_dimensions()</code></a> reads series-specific code lists without downloading observations. <code>include_attributes = TRUE</code> also includes attributes such as units and data nature. Here we inspect age and sex codes for the SDG 3.8.2 series used below.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">codebook <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sdg_dimensions</span>(</span>
+<span id="cb2-2">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"3.8.2"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">series =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SH_OOP_XPD_EARNNET40"</span>,</span>
+<span id="cb2-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">include_attributes =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb2-4">))</span>
+<span id="cb2-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stopifnot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(codebook) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>L)</span>
+<span id="cb2-6"></span>
+<span id="cb2-7">codebook <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(kind <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dimension"</span>, dimension <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Age"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Sex"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(dimension, code, label, sdmx) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>L)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  dimension code    label                              sdmx  
+  &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;                              &lt;chr&gt; 
+1 Age       0-59    under 59 years old                 Y0T59 
+2 Age       60+     60 years old and over              Y_GE60
+3 Age       ALLAGE  All age ranges or no breaks by age _T    
+4 Sex       BOTHSEX Both sexes                         _T    
+5 Sex       FEMALE  Female                             F     
+6 Sex       MALE    Male                               M     </code></pre>
+</div>
+</div>
+<p>Use <code>code</code> in filters: the alternative <code>sdmx</code> representation can differ. A category in the codebook does not guarantee observations for every country.</p>
+</section>
+<section id="select-a-stratum-and-retain-its-context" class="level2">
+<h2 class="anchored" data-anchor-id="select-a-stratum-and-retain-its-context">2. Select a stratum and retain its context</h2>
+<p>This follows the <a href="https://github.com/shanlong-who/DSIR#un-sdg-api">documented national-total example</a> for the Philippines. Dimension names and codes are exact and case-sensitive.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">national.raw <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sdg_data</span>(</span>
+<span id="cb4-2">  <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"3.8.2"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">area =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PHL"</span>,</span>
+<span id="cb4-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">series =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SH_OOP_XPD_EARNNET40"</span>,</span>
+<span id="cb4-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dimensions =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb4-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Age =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ALLAGE"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Location =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ALLAREA"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Sex =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BOTHSEX"</span>,</span>
+<span id="cb4-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Quantile =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_T"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Type_of_household =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_T"</span></span>
+<span id="cb4-7">  )</span>
+<span id="cb4-8">))</span>
+<span id="cb4-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stopifnot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(national.raw) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>L)</span>
+<span id="cb4-10"></span>
+<span id="cb4-11">national <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sdg_clean</span>(</span>
+<span id="cb4-12">  national.raw, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">keep_dimensions =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">keep_metadata =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span></span>
+<span id="cb4-13">)</span>
+<span id="cb4-14"></span>
+<span id="cb4-15">national <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(iso3, year, value_num, dim_sex, attr_units, attr_nature) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tail</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>L)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 6
+  iso3   year value_num dim_sex attr_units attr_nature
+  &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;      
+1 PHL    2012      36.8 BOTHSEX PERCENT    G          
+2 PHL    2015      35.2 BOTHSEX PERCENT    G          
+3 PHL    2018      31.6 BOTHSEX PERCENT    C          
+4 PHL    2021      33.8 BOTHSEX PERCENT    C          
+5 PHL    2023      31.0 BOTHSEX PERCENT    C          </code></pre>
+</div>
+</div>
+<p><code>keep_dimensions = TRUE</code> appends named SDG columns such as <code>dim_age</code> and <code>dim_sex</code>; <code>dim1</code> through <code>dim3</code> remain GHO-only positions. <code>keep_metadata = TRUE</code> retains observation attributes, source and time context, and all footnotes and linked codes. Notes and linked codes are list-columns. See <a href="https://github.com/shanlong-who/DSIR/blob/main/man/sdg_clean.Rd"><code>sdg_clean()</code></a>.</p>
+<p><strong>The filters run locally after all pages are downloaded.</strong> They do not reduce the number of pages fetched. DSIR checks declared page numbers, page counts, and total row counts before filtering. An inconsistent or incomplete download warns and returns no rows; counts omitted by the API cannot be verified. A requested dimension absent from the response also warns and returns no rows. <a href="https://github.com/shanlong-who/DSIR/blob/main/man/sdg_coverage.Rd"><code>sdg_coverage()</code></a> accepts the same filters and now retains download warnings.</p>
+</section>
+<section id="save-the-result-for-reuse" class="level2">
+<h2 class="anchored" data-anchor-id="save-the-result-for-reuse">3. Save the result for reuse</h2>
+<p><a href="https://github.com/shanlong-who/DSIR/blob/main/man/snapshot.Rd"><code>snapshot()</code></a>, added in 0.9.0, saves an expression’s result as an RDS file. RDS preserves the list-columns above. The second call proves that an existing snapshot is read without evaluating the expression again.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">snapshot.path <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tempdir</span>(), <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sdg-3-8-2-phl-national.rds"</span>)</span>
+<span id="cb6-2">saved <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">snapshot</span>(national, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">file =</span> snapshot.path))</span>
+<span id="cb6-3">reused <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">suppressMessages</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">snapshot</span>(</span>
+<span id="cb6-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stop</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"This expression should not run."</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">file =</span> snapshot.path</span>
+<span id="cb6-5">))</span>
+<span id="cb6-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">identical</span>(saved, reused)</span></code></pre></div></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+<p>For reuse across R sessions, choose a fixed path in your project instead of <code>tempdir()</code>. <code>refresh = TRUE</code> re-evaluates the expression; put an API pull inside that expression when a refresh should download data again. An empty refresh is never written over a good snapshot; the older result is returned with a warning.</p>
+</section>
+<section id="other-changes-worth-knowing" class="level2">
+<h2 class="anchored" data-anchor-id="other-changes-worth-knowing">Other changes worth knowing</h2>
+<p>For GHO, <a href="https://github.com/shanlong-who/DSIR/blob/main/man/gho_clean.Rd"><code>gho_clean()</code></a> can now retain each row’s dimension types (<code>dim1_type</code> through <code>dim3_type</code>), identifiers, source codes, time context, update timestamps, and comments. Types are copied from source fields rather than inferred from codes. <code>bind_indicators()</code> now preserves extra columns and fills missing fields when inputs have different dimensions.</p>
+<p>Version 0.9.0 also added <a href="https://github.com/shanlong-who/DSIR/blob/main/man/age_standardize.Rd"><code>age_standardize()</code></a> for direct age standardization with optional Fay-Feuer gamma confidence intervals, and <a href="https://github.com/shanlong-who/DSIR/blob/main/man/life_table.Rd"><code>life_table()</code></a> for period life tables from age-specific mortality rates. The <a href="https://github.com/shanlong-who/DSIR/blob/main/NEWS.md">release notes</a> describe the full changes.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>R</category>
+  <category>global health</category>
+  <category>WHO</category>
+  <category>SDG</category>
+  <category>reproducibility</category>
+  <guid>https://shanlong-who.github.io/DSIR-blog/posts/dsir-0-10-0/</guid>
+  <pubDate>Sat, 03 Oct 2026 16:00:00 GMT</pubDate>
+</item>
 <item>
   <title>One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR</title>
   <dc:creator>Shanlong Ding</dc:creator>

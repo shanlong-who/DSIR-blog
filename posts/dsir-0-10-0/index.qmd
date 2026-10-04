@@ -1,0 +1,136 @@
+---
+title: "DSIR 0.10.0: keep the detail behind health indicators"
+author: "Shanlong Ding"
+date: "2026-10-04"
+categories: [R, global health, WHO, SDG, reproducibility]
+description: >
+  Discover official SDG dimension codes, select population strata, and retain
+  source metadata, with three runnable examples using DSIR 0.10.0.
+execute:
+  freeze: auto
+  error: false
+  warning: true
+  message: false
+---
+
+The [first DSIR post](../dsir-intro/index.qmd) introduced a shared format for
+WHO GHO and UN SDG data. [DSIR 0.10.0](https://github.com/shanlong-who/DSIR/blob/main/NEWS.md)
+adds ways to inspect and keep the detail behind each observation: population
+breakdowns, units, sources, and notes. Both cleaners still return the same
+15 columns by default.
+
+These examples require **DSIR 0.10.0 or later** and `dplyr`. See the
+[public repository](https://github.com/shanlong-who/DSIR#installation) for
+installation instructions. The first two examples call the live UN SDG API;
+the displayed results were retrieved on 4 October 2026.
+
+```{r}
+#| label: setup
+suppressPackageStartupMessages(library(DSIR))
+suppressPackageStartupMessages(library(dplyr))
+
+stopifnot(packageVersion("DSIR") >= "0.10.0")
+```
+
+## 1. Look up official dimension codes
+
+[`sdg_dimensions()`](https://github.com/shanlong-who/DSIR/blob/main/man/sdg_dimensions.Rd)
+reads series-specific code lists without downloading observations.
+`include_attributes = TRUE` also includes attributes such as units and data
+nature. Here we inspect age and sex codes for the SDG 3.8.2 series used below.
+
+```{r}
+#| label: dimension-codes
+codebook <- suppressMessages(sdg_dimensions(
+  "3.8.2", series = "SH_OOP_XPD_EARNNET40",
+  include_attributes = TRUE
+))
+stopifnot(nrow(codebook) > 0L)
+
+codebook %>%
+  filter(kind == "dimension", dimension %in% c("Age", "Sex")) %>%
+  select(dimension, code, label, sdmx) %>%
+  head(8L)
+```
+
+Use `code` in filters: the alternative `sdmx` representation can differ.
+A category in the codebook does not guarantee observations for every country.
+
+## 2. Select a stratum and retain its context
+
+This follows the [documented national-total example](https://github.com/shanlong-who/DSIR#un-sdg-api)
+for the Philippines. Dimension names and codes are exact and case-sensitive.
+
+```{r}
+#| label: national-observations
+national.raw <- suppressMessages(sdg_data(
+  "3.8.2", area = "PHL",
+  series = "SH_OOP_XPD_EARNNET40",
+  dimensions = list(
+    Age = "ALLAGE", Location = "ALLAREA", Sex = "BOTHSEX",
+    Quantile = "_T", Type_of_household = "_T"
+  )
+))
+stopifnot(nrow(national.raw) > 0L)
+
+national <- sdg_clean(
+  national.raw, keep_dimensions = TRUE, keep_metadata = TRUE
+)
+
+national %>%
+  select(iso3, year, value_num, dim_sex, attr_units, attr_nature) %>%
+  tail(5L)
+```
+
+`keep_dimensions = TRUE` appends named SDG columns such as `dim_age` and
+`dim_sex`; `dim1` through `dim3` remain GHO-only positions.
+`keep_metadata = TRUE` retains observation attributes, source and time
+context, and all footnotes and linked codes. Notes and linked codes are
+list-columns. See [`sdg_clean()`](https://github.com/shanlong-who/DSIR/blob/main/man/sdg_clean.Rd).
+
+**The filters run locally after all pages are downloaded.** They do not reduce
+the number of pages fetched. DSIR checks declared page numbers, page counts,
+and total row counts before filtering. An inconsistent or incomplete download
+warns and returns no rows; counts omitted by the API cannot be verified.
+A requested dimension absent from the response also warns and returns no rows.
+[`sdg_coverage()`](https://github.com/shanlong-who/DSIR/blob/main/man/sdg_coverage.Rd)
+accepts the same filters and now retains download warnings.
+
+## 3. Save the result for reuse
+
+[`snapshot()`](https://github.com/shanlong-who/DSIR/blob/main/man/snapshot.Rd),
+added in 0.9.0, saves an expression's result as an RDS file. RDS preserves the
+list-columns above. The second call proves that an existing snapshot is read
+without evaluating the expression again.
+
+```{r}
+#| label: reusable-snapshot
+snapshot.path <- file.path(tempdir(), "sdg-3-8-2-phl-national.rds")
+saved <- suppressMessages(snapshot(national, file = snapshot.path))
+reused <- suppressMessages(snapshot(
+  stop("This expression should not run."), file = snapshot.path
+))
+identical(saved, reused)
+```
+
+For reuse across R sessions, choose a fixed path in your project instead of
+`tempdir()`. `refresh = TRUE` re-evaluates the expression; put an API pull inside
+that expression when a refresh should download data again. An empty refresh
+is never written over a good snapshot; the older result is returned with a warning.
+
+## Other changes worth knowing
+
+For GHO, [`gho_clean()`](https://github.com/shanlong-who/DSIR/blob/main/man/gho_clean.Rd)
+can now retain each row's dimension types (`dim1_type` through `dim3_type`),
+identifiers, source codes, time context, update timestamps, and comments.
+Types are copied from source fields rather than inferred from codes.
+`bind_indicators()` now preserves extra columns and fills missing fields
+when inputs have different dimensions.
+
+Version 0.9.0 also added
+[`age_standardize()`](https://github.com/shanlong-who/DSIR/blob/main/man/age_standardize.Rd)
+for direct age standardization with optional Fay-Feuer gamma confidence
+intervals, and [`life_table()`](https://github.com/shanlong-who/DSIR/blob/main/man/life_table.Rd)
+for period life tables from age-specific mortality rates. The
+[release notes](https://github.com/shanlong-who/DSIR/blob/main/NEWS.md) describe
+the full changes.
