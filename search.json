@@ -42,6 +42,13 @@
     "text": "Try it\nDSIR is on CRAN and the source is on GitHub:\ninstall.packages(\"DSIR\")\n\nDocumentation and a fuller walkthrough: https://shanlong-who.github.io/DSIR/\nSource, issues, and feature requests: https://github.com/shanlong-who/DSIR/\n\nIt’s early days and the package is small by design — it does the unglamorous data-plumbing so the analysis can start sooner. If you work with WHO or SDG data in R and find it useful, I’d love to hear what’s missing; issues and suggestions are very welcome. And if it saves you some glue code, a GitHub star helps other people working on global health find it too."
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Shanlong Ding",
+    "section": "",
+    "text": "Welcome. This is where I write about working with global-health data in R — WHO and UN SDG indicator APIs, reproducible analytical workflows, and the small tools I build along the way.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nDSIR 0.10.0: keep the detail behind health indicators\n\n\n\nR\n\nglobal health\n\nWHO\n\nSDG\n\nreproducibility\n\n\n\nDiscover official SDG dimension codes, select population strata, and retain source metadata, with three runnable examples using DSIR 0.10.0.\n\n\n\n\n\nOct 4, 2026\n\n\nShanlong Ding\n\n\n\n\n\n\n\n\n\n\n\n\nOne tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR\n\n\n\nR\n\nglobal health\n\nWHO\n\nSDG\n\nggplot2\n\n\n\nDSIR bundles WHO Member State metadata, lightweight clients for the GHO and UN SDG indicator APIs, and reusable WHO-style ggplot2 and flextable themes — so global-health data work in R takes less glue code and produces consistent charts and tables.\n\n\n\n\n\nJun 2, 2026\n\n\nShanlong Ding\n\n\n\n\n\nNo matching items"
+  },
+  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "Shanlong Ding",
@@ -49,10 +56,38 @@
     "text": "I work on health information and data science at the WHO Regional Office for the Western Pacific. My focus is turning routine health data into decision-relevant intelligence — through indicator monitoring, reproducible analytical workflows in R, and data visualization.\nI’m the author of DSIR, an R package for global-health data work that provides unified access to the WHO Global Health Observatory and UN SDG indicator APIs, along with WHO-style ggplot2 and flextable themes for consistent reporting.\nI hold a PhD in microbiology and came to data science through public health. This blog is where I share notes on R, WHO and SDG data workflows, and the small tools I build along the way.\n\n\n\n\n\n\nThe views expressed on this blog are my own and do not necessarily reflect those of my employer."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Shanlong Ding",
+    "objectID": "posts/dsir-0-10-0/index.html",
+    "href": "posts/dsir-0-10-0/index.html",
+    "title": "DSIR 0.10.0: keep the detail behind health indicators",
     "section": "",
-    "text": "Welcome. This is where I write about working with global-health data in R — WHO and UN SDG indicator APIs, reproducible analytical workflows, and the small tools I build along the way.\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nOne tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR\n\n\n\nR\n\nglobal health\n\nWHO\n\nSDG\n\nggplot2\n\n\n\nDSIR bundles WHO Member State metadata, lightweight clients for the GHO and UN SDG indicator APIs, and reusable WHO-style ggplot2 and flextable themes — so global-health data work in R takes less glue code and produces consistent charts and tables.\n\n\n\n\n\nJun 2, 2026\n\n\nShanlong Ding\n\n\n\n\n\nNo matching items"
+    "text": "The first DSIR post introduced a shared format for WHO GHO and UN SDG data. DSIR 0.10.0 adds ways to inspect and keep the detail behind each observation: population breakdowns, units, sources, and notes. Both cleaners still return the same 15 columns by default.\nThese examples require DSIR 0.10.0 or later and dplyr. See the public repository for installation instructions. The first two examples call the live UN SDG API; the displayed results were retrieved on 4 October 2026.\nsuppressPackageStartupMessages(library(DSIR))\nsuppressPackageStartupMessages(library(dplyr))\n\nstopifnot(packageVersion(\"DSIR\") &gt;= \"0.10.0\")"
+  },
+  {
+    "objectID": "posts/dsir-0-10-0/index.html#look-up-official-dimension-codes",
+    "href": "posts/dsir-0-10-0/index.html#look-up-official-dimension-codes",
+    "title": "DSIR 0.10.0: keep the detail behind health indicators",
+    "section": "1. Look up official dimension codes",
+    "text": "1. Look up official dimension codes\nsdg_dimensions() reads series-specific code lists without downloading observations. include_attributes = TRUE also includes attributes such as units and data nature. Here we inspect age and sex codes for the SDG 3.8.2 series used below.\n\ncodebook &lt;- suppressMessages(sdg_dimensions(\n  \"3.8.2\", series = \"SH_OOP_XPD_EARNNET40\",\n  include_attributes = TRUE\n))\nstopifnot(nrow(codebook) &gt; 0L)\n\ncodebook %&gt;%\n  filter(kind == \"dimension\", dimension %in% c(\"Age\", \"Sex\")) %&gt;%\n  select(dimension, code, label, sdmx) %&gt;%\n  head(8L)\n\n# A tibble: 6 × 4\n  dimension code    label                              sdmx  \n  &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;                              &lt;chr&gt; \n1 Age       0-59    under 59 years old                 Y0T59 \n2 Age       60+     60 years old and over              Y_GE60\n3 Age       ALLAGE  All age ranges or no breaks by age _T    \n4 Sex       BOTHSEX Both sexes                         _T    \n5 Sex       FEMALE  Female                             F     \n6 Sex       MALE    Male                               M     \n\n\nUse code in filters: the alternative sdmx representation can differ. A category in the codebook does not guarantee observations for every country."
+  },
+  {
+    "objectID": "posts/dsir-0-10-0/index.html#select-a-stratum-and-retain-its-context",
+    "href": "posts/dsir-0-10-0/index.html#select-a-stratum-and-retain-its-context",
+    "title": "DSIR 0.10.0: keep the detail behind health indicators",
+    "section": "2. Select a stratum and retain its context",
+    "text": "2. Select a stratum and retain its context\nThis follows the documented national-total example for the Philippines. Dimension names and codes are exact and case-sensitive.\n\nnational.raw &lt;- suppressMessages(sdg_data(\n  \"3.8.2\", area = \"PHL\",\n  series = \"SH_OOP_XPD_EARNNET40\",\n  dimensions = list(\n    Age = \"ALLAGE\", Location = \"ALLAREA\", Sex = \"BOTHSEX\",\n    Quantile = \"_T\", Type_of_household = \"_T\"\n  )\n))\nstopifnot(nrow(national.raw) &gt; 0L)\n\nnational &lt;- sdg_clean(\n  national.raw, keep_dimensions = TRUE, keep_metadata = TRUE\n)\n\nnational %&gt;%\n  select(iso3, year, value_num, dim_sex, attr_units, attr_nature) %&gt;%\n  tail(5L)\n\n# A tibble: 5 × 6\n  iso3   year value_num dim_sex attr_units attr_nature\n  &lt;chr&gt; &lt;int&gt;     &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;      &lt;chr&gt;      \n1 PHL    2012      36.8 BOTHSEX PERCENT    G          \n2 PHL    2015      35.2 BOTHSEX PERCENT    G          \n3 PHL    2018      31.6 BOTHSEX PERCENT    C          \n4 PHL    2021      33.8 BOTHSEX PERCENT    C          \n5 PHL    2023      31.0 BOTHSEX PERCENT    C          \n\n\nkeep_dimensions = TRUE appends named SDG columns such as dim_age and dim_sex; dim1 through dim3 remain GHO-only positions. keep_metadata = TRUE retains observation attributes, source and time context, and all footnotes and linked codes. Notes and linked codes are list-columns. See sdg_clean().\nThe filters run locally after all pages are downloaded. They do not reduce the number of pages fetched. DSIR checks declared page numbers, page counts, and total row counts before filtering. An inconsistent or incomplete download warns and returns no rows; counts omitted by the API cannot be verified. A requested dimension absent from the response also warns and returns no rows. sdg_coverage() accepts the same filters and now retains download warnings."
+  },
+  {
+    "objectID": "posts/dsir-0-10-0/index.html#save-the-result-for-reuse",
+    "href": "posts/dsir-0-10-0/index.html#save-the-result-for-reuse",
+    "title": "DSIR 0.10.0: keep the detail behind health indicators",
+    "section": "3. Save the result for reuse",
+    "text": "3. Save the result for reuse\nsnapshot(), added in 0.9.0, saves an expression’s result as an RDS file. RDS preserves the list-columns above. The second call proves that an existing snapshot is read without evaluating the expression again.\n\nsnapshot.path &lt;- file.path(tempdir(), \"sdg-3-8-2-phl-national.rds\")\nsaved &lt;- suppressMessages(snapshot(national, file = snapshot.path))\nreused &lt;- suppressMessages(snapshot(\n  stop(\"This expression should not run.\"), file = snapshot.path\n))\nidentical(saved, reused)\n\n[1] TRUE\n\n\nFor reuse across R sessions, choose a fixed path in your project instead of tempdir(). refresh = TRUE re-evaluates the expression; put an API pull inside that expression when a refresh should download data again. An empty refresh is never written over a good snapshot; the older result is returned with a warning."
+  },
+  {
+    "objectID": "posts/dsir-0-10-0/index.html#other-changes-worth-knowing",
+    "href": "posts/dsir-0-10-0/index.html#other-changes-worth-knowing",
+    "title": "DSIR 0.10.0: keep the detail behind health indicators",
+    "section": "Other changes worth knowing",
+    "text": "Other changes worth knowing\nFor GHO, gho_clean() can now retain each row’s dimension types (dim1_type through dim3_type), identifiers, source codes, time context, update timestamps, and comments. Types are copied from source fields rather than inferred from codes. bind_indicators() now preserves extra columns and fills missing fields when inputs have different dimensions.\nVersion 0.9.0 also added age_standardize() for direct age standardization with optional Fay-Feuer gamma confidence intervals, and life_table() for period life tables from age-specific mortality rates. The release notes describe the full changes."
   }
 ]
