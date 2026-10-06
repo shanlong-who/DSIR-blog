@@ -292,6 +292,7 @@ font-style: inherit;">identical</span>(saved, reused)</span></code></pre></div><
   <category>reproducibility</category>
   <guid>https://shanlong-who.github.io/DSIR-blog/posts/dsir-0-10-0/</guid>
   <pubDate>Sat, 03 Oct 2026 16:00:00 GMT</pubDate>
+  <media:content url="https://shanlong-who.github.io/DSIR-blog/posts/dsir-0-10-0/index.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
   <title>One tidy workflow for WHO GHO and UN SDG data in R: introducing DSIR</title>

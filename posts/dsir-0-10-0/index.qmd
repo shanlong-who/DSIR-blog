@@ -6,6 +6,7 @@ categories: [R, global health, WHO, SDG, reproducibility]
 description: >
   Discover official SDG dimension codes, select population strata, and retain
   source metadata, with three runnable examples using DSIR 0.10.0.
+image: index.jpg
 execute:
   freeze: auto
   error: false
